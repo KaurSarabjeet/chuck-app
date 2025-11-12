@@ -1,6 +1,6 @@
 ---
 
-# Chuck Norris Web App – Take-Home Project
+# Chuck Norris Jokes App
 
 A simple and complete project that deploys a **Chuck Norris joke web application** on **Google Cloud**, using **Terraform**, **Ansible**, **Docker**, and **Flask**.
 The app fetches random jokes from [https://api.chucknorris.io/](https://api.chucknorris.io/) and display them.
