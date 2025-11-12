@@ -1,0 +1,45 @@
+# Ansible playbook/role file used to configure the Debian host and deploy the Chuck Norris app.
+- name: Configure and deploy Chuck Norris Flask app
+# Ansible play targeting these hosts
+  hosts: chuck_vm
+  become: true
+# Ansible tasks to execute on target hosts
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker and Python dependencies
+      apt:
+        name:
+          - docker.io
+          - python3
+          - python3-pip
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Copy Chuck Norris app files to VM
+      synchronize:
+        src: ../app/
+        dest: /opt/chuck-app/
+        recursive: yes
+
+    - name: Build and run the Docker container
+      shell: |
+        cd /opt/chuck-app
+        docker build -t chuck-app .
+        docker stop chuck-app || true
+        docker rm chuck-app || true
+        docker run -d -p 5001:5001 --name chuck-app chuck-app
+
+    - name: Verify running containers
+      command: docker ps
+      register: docker_status
+
+    - debug:
+        var: docker_status.stdout_lines

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Chuck Norris Joke</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>💥 Chuck Norris Joke 💥</h1>
+    <p id="joke">{{ joke["value"] }}</p>
+    <button onclick="loadJoke()">Next Joke</button>
+  </div>
+
+  <script>
+    async function loadJoke() {
+      const res = await fetch('/random');
+      const data = await res.json();
+      document.getElementById('joke').innerText = data.value;
+    }
+  </script>
+</body>
+</html>
