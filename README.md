@@ -125,6 +125,42 @@ Visit: `http://localhost:5001`
 
 ---
 
+---
+
+## Project Status Report
+
+### Summary
+
+This project automates the deployment of a Python Flask–based Chuck Norris joke web app on Google Cloud using Terraform, Ansible, and Docker.
+
+### What Has Been Done
+
+* Terraform configured (VM, firewall, outputs)
+* Automatic login via Application Default Credentials
+* Service account attached to VM
+* Ansible installed Docker and nginx
+* Flask app containerized and deployed
+* Repository structured and documented
+
+### What’s Left To Do
+
+* Add GitHub Actions or Cloud Build pipeline for CI/CD
+* Move Terraform state to a GCS backend
+* Add a `/health` endpoint for monitoring
+* Improve test coverage for Flask routes
+* Add `.gitignore` cleanup and optional monitoring
+
+### Next Steps
+
+1. Automate Terraform + Ansible with CI/CD
+2. Store Terraform state in a remote GCS backend
+3. Add API and UI health checks
+4. Extend test coverage
+
+---
+
+---
+
 ## References
 
 * [Chuck Norris API](https://api.chucknorris.io/)
