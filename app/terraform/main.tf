@@ -11,15 +11,15 @@ terraform {
 }
 
 # --- Google Provider ---
-# Terraform provider configuration
+# Uses Application Default Credentials (ADC)
+# No need for explicit credentials or key files.
 provider "google" {
-  project = "terraform-gcp-378718"
-  region  = "us-central1"
-  zone    = "us-central1-a"
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
 }
 
 # --- Firewall rule (SSH + App Port) ---
-# Terraform resource block
 resource "google_compute_firewall" "chuck_firewall" {
   name    = "allow-chuck-firewall"
   network = "default"
@@ -33,14 +33,12 @@ resource "google_compute_firewall" "chuck_firewall" {
   target_tags   = ["chuck-app"]
 }
 
-# --- Free-Tier Eligible Compute Engine VM ---
-# Terraform resource block
+# --- Compute Engine VM ---
 resource "google_compute_instance" "chuck_vm" {
   name         = "chuck-norris-vm"
   machine_type = "e2-micro"
-  zone         = "us-central1-a"
-
-  tags = ["chuck-app"]
+  zone         = var.zone
+  tags         = ["chuck-app"]
 
   boot_disk {
     initialize_params {
@@ -54,18 +52,25 @@ resource "google_compute_instance" "chuck_vm" {
     access_config {}
   }
 
+  # Enable OS Login for IAM-based SSH (no key injection)
   metadata = {
-    ssh-keys = "debian:${file("${path.module}/chuck_key.pub")}"
+    enable-oslogin = "TRUE"
+  }
+
+  # Attach a service account for the VM to access GCP APIs securely
+  service_account {
+    email  = var.service_account_email
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 }
 
-# --- Outputs for reference ---
+# --- Outputs ---
 output "instance_ip" {
   description = "Public IP of the deployed VM"
   value       = google_compute_instance.chuck_vm.network_interface[0].access_config[0].nat_ip
 }
 
 output "ssh_command" {
-  description = "SSH command to access the VM"
-  value       = "ssh -i ${path.module}/chuck_key debian@${google_compute_instance.chuck_vm.network_interface[0].access_config[0].nat_ip}"
+  description = "Command to SSH into the VM using OS Login"
+  value       = "gcloud compute ssh debian@${google_compute_instance.chuck_vm.name} --zone ${var.zone}"
 }
