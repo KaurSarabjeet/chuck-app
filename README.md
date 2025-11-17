@@ -43,8 +43,8 @@ After applying, note the **external IP** to use in Ansible or your browser.
 
 Once the VM is created, Ansible installs and configures everything automatically.
 
-* **provision.yml** – Installs Docker and nginx, updates packages, and grants the default Debian user Docker access.
-* **deploy.yml** – Copies app files, builds the Docker image, runs the container, and configures nginx as a reverse proxy.
+
+* **playbook.yml** – Copies app files, builds the Docker image, runs the container, and configures nginx as a reverse proxy.
 
 **Run:**
 
