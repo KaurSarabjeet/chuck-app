@@ -26,7 +26,6 @@ Terraform handles all infrastructure creation on **Google Cloud Platform (GCP)**
 * **main.tf** – Creates a Compute Engine VM (Debian 12) and a firewall rule for ports `22` (SSH) and `5001` (app).
 * **variables.tf** – Defines variables such as project ID, region, and zone.
 * **outputs.tf** – Prints VM details (external/internal IPs, firewall info, summary).
-* **provider.tf** – Specifies the Google provider and required Terraform version.
 
 **Commands:**
 
