@@ -1,170 +1,148 @@
----
-
 # Chuck Norris Jokes App
 
-A simple and complete project that deploys a **Chuck Norris joke web application** on **Google Cloud**, using **Terraform**, **Ansible**, **Docker**, and **Flask**.
-The app fetches random jokes from [https://api.chucknorris.io/](https://api.chucknorris.io/) and display them.
+A simple project that deploys a **Chuck Norris joke web application** on **Google Cloud**, using **Terraform**, **Ansible**, **Docker**, and **Flask**. The app fetches random jokes from the public API and displays them in a simple web page.
 
 ---
 
 ## Overview
 
-This project demonstrates an end-to-end deployment workflow:
+This project demonstrates a complete deployment workflow:
 
-1. **Infrastructure provisioning** on Google Cloud with Terraform.
-2. **VM configuration and deployment** using Ansible.
-3. **Containerized web application** built with Docker and Flask.
-
-Each layer is modular, reusable, and follows best practices for infrastructure automation.
+1. **Infrastructure provisioning** on Google Cloud using Terraform.
+2. **VM configuration and application deployment** using Ansible.
+3. **Containerized Python Flask application** using Docker.
 
 ---
 
 ## Infrastructure (Terraform)
 
-Terraform handles all infrastructure creation on **Google Cloud Platform (GCP)**.
+Terraform provisions the virtual machine and firewall rules on **Google Cloud Compute Engine**.
 
-* **main.tf** – Creates a Compute Engine VM (Debian 12) and a firewall rule for ports `22` (SSH) and `5001` (app).
-* **variables.tf** – Defines variables such as project ID, region, and zone.
-* **outputs.tf** – Prints VM details (external/internal IPs, firewall info, summary).
+### Key Files
 
-**Commands:**
+* **main.tf** – Creates a Debian VM and firewall rules.
+* **variables.tf** – Contains configurable values like project, region, zone, and machine type.
+* **outputs.tf** – Displays useful information such as external and internal IP addresses.
+
+### Commands
 
 ```bash
+cd terraform
 terraform init
 terraform plan
 terraform apply
 ```
 
-After applying, note the **external IP** to use in Ansible or your browser.
+After applying, note the **external IP** of the VM for Ansible.
 
 ---
 
-## Provisioning (Ansible)
+## Provisioning & Deployment (Ansible)
 
-Once the VM is created, Ansible installs and configures everything automatically.
+Ansible installs necessary packages on the VM and deploys the Docker container running the Flask app.
 
+### Key Files
 
-* **playbook.yml** – Copies app files, builds the Docker image, runs the container, and configures nginx as a reverse proxy.
+* **inventory.ini** – Stores the VM IP address.
+* **playbook.yml** – Installs Docker, copies application files, builds the Docker image, and runs the container.
 
-**Run:**
+### Run Ansible
 
 ```bash
-ansible-playbook -i inventory.ini provision.yml
-ansible-playbook -i inventory.ini deploy.yml
+cd ansible
+ansible-playbook -i inventory.ini playbook.yml
 ```
+
+This will:
+
+* Install Docker
+* Copy the application files
+* Build and run the Docker container
+
+The application becomes available on port **5001**.
 
 ---
 
 ## Web Application (Flask + Docker)
 
-The Flask app lives in the `app/` directory.
+The Flask application is located in the `app/` directory.
 
-* **app.py** – Flask server fetching jokes from the public API and rendering them as HTML.
-* **index.html** – Displays the joke text in the center of the page with a clean layout.
-* **styles.css** – Adds a dark theme and yellow joke text for contrast.
-* **Dockerfile** – Builds a lightweight Python 3 Alpine image with project dependencies.
+### Key Components
 
-**Run locally:**
+* **main.py** – Backend Flask logic fetching jokes from the API.
+* **templates/index.html** – Frontend UI for displaying jokes.
+* **static/styles.css** – Styling for the interface.
+* **Dockerfile** – Builds the Flask application image.
+
+### Run Locally
 
 ```bash
+cd app
 docker build -t chuck-app .
 docker run -p 5001:5001 chuck-app
 ```
 
-Visit: `http://localhost:5001`
+Visit:
+
+```
+http://localhost:5001
+```
 
 ---
 
-## Deployment Workflow
+## Deployment Workflow Summary
 
-1. **Provision infrastructure**
+1. **Build infrastructure** using Terraform:
 
    ```bash
    terraform apply
    ```
-2. **Configure and deploy**
+2. **Deploy the application** using Ansible:
 
    ```bash
-   ansible-playbook -i inventory.ini provision.yml
-   ansible-playbook -i inventory.ini deploy.yml
+   ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
    ```
-3. **Access the app**
+3. **Access the application**:
 
-   ```
-   http://<EXTERNAL_IP>:80
-   ```
-
-   or directly:
-
-   ```
-   http://<EXTERNAL_IP>:5001
-   ```
+```
+http://<EXTERNAL_IP>:5001
+```
 
 ---
 
 ## Best Practices
 
-* Use a **GCP Service Account** for Terraform authentication instead of `gcloud auth login`.
-* Never commit secrets, `.tfstate` files, or private keys.
-* Keep infrastructure flexible using variables and modules.
-* Add `/health` endpoints and blue-green deployment strategies for production-grade availability.
+* Use a **GCP service account** for Terraform authentication.
+* Avoid committing secrets, SSH keys, or Terraform state files.
+* Keep Terraform variables in `terraform.tfvars`.
+* Split playbooks in the future for better maintainability if needed.
 
 ---
 
 ## Technology Stack
 
-| Layer                    | Technology                                       |
-| ------------------------ | ------------------------------------------------ |
-| Cloud                    | Google Cloud Platform (Compute Engine, Firewall) |
-| Infrastructure as Code   | Terraform                                        |
-| Configuration Management | Ansible                                          |
-| Backend                  | Flask (Python)                                   |
-| Containerization         | Docker (Alpine Linux)                            |
-| Frontend                 | HTML + CSS                                       |
+| Layer            | Technology                  |
+| ---------------- | --------------------------- |
+| Cloud            | Google Cloud Compute Engine |
+| IaC              | Terraform                   |
+| Configuration    | Ansible                     |
+| Backend          | Python Flask                |
+| Containerization | Docker                      |
+| Frontend         | HTML + CSS                  |
 
 ---
 
----
+## Future Enhancements
 
-## Project Status Report
-
-### Summary
-
-This project automates the deployment of a Python Flask–based Chuck Norris joke web app on Google Cloud using Terraform, Ansible, and Docker.
-
-### What Has Been Done
-
-* Terraform configured (VM, firewall, outputs)
-* Automatic login via Application Default Credentials
-* Service account attached to VM
-* Ansible installed Docker and nginx
-* Flask app containerized and deployed
-* Repository structured and documented
-
-### What’s Left To Do
-
-* Add GitHub Actions or Cloud Build pipeline for CI/CD
-* Move Terraform state to a GCS backend
-* Add a `/health` endpoint for monitoring
-* Improve test coverage for Flask routes
-* Add `.gitignore` cleanup and optional monitoring
-
-### Next Steps
-
-1. Automate Terraform + Ansible with CI/CD
-2. Store Terraform state in a remote GCS backend
-3. Add API and UI health checks
-4. Extend test coverage
-
----
+* Add CI/CD (GitHub Actions or Cloud Build).
+* Improve application logging and monitoring.
+* Add separate provision and deployment playbooks.
 
 ---
 
 ## References
 
-* [Chuck Norris API](https://api.chucknorris.io/)
-* [Terraform Documentation](https://developer.hashicorp.com/terraform)
-* [Ansible Documentation](https://docs.ansible.com/)
-* [Flask Framework](https://flask.palletsprojects.com/)
-
----
+* [https://api.chucknorris.io/](https://api.chucknorris.io/)
+* [https://developer.hashicorp.com/terraform](https://developer.hashicorp.com/terraform)
+* [https://docs.ansible.com/](https://docs.ansible.com/)
+* [https://flask.palletsprojects.com/](https://flask.palletsprojects.com/)
