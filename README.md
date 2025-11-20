@@ -146,3 +146,5 @@ http://<EXTERNAL_IP>:5001
 * [https://developer.hashicorp.com/terraform](https://developer.hashicorp.com/terraform)
 * [https://docs.ansible.com/](https://docs.ansible.com/)
 * [https://flask.palletsprojects.com/](https://flask.palletsprojects.com/)
+* [Terraform](https://registry.terraform.io/providers/hashicorp/google/latest/docs)
+* [GCP VM](https://docs.cloud.google.com/compute/docs)
